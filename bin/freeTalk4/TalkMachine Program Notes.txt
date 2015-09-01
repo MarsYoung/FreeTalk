@@ -1,0 +1,48 @@
+TalkMachine Program Notes
+1.从总体上看，这个程序的完成让我更加深刻的体会到了MVC模式的好处，和以前不同。这次的界面由XP同学完成，这大大的解放了生产力啊。。还有就是MVC模式的进一步加强之处在于，和以前我写的小程序相比，这次是两个view同时持有一个controller和一个model，通过这个我对new的理解更上一个层次。只不过是model 里的connection开了两个端口，来实现对话和注册这两个不同的业务。
+2.写程序不要纠结于太多的细节，要从整体框架上把流程跑出来，然后再一步一步落实细节。比方说，一开始我写的时候，只要是不启动服务器，或是先关掉服务器，客户端就起不来或是报一堆错误，最后等程序写完框架之后，才来改正这些问题。。
+3.细节上好多心得，第一条就是在数据的传输和封装上，我一直想用ObjectInputStream和ObjectOutputStream来封装InputStream和OutputStream，结果是行不通的。那个貌似只能封装文件流（FileInputStream和FileOutputStream）。
+4.然后在view上，我也有了好多进步之处，譬如说：绝对布局的使用，和Choice，Checkbox，CheckboxGroup,JTextField,JTextArea的使用，和listener的分批细化处理。。还有在界面上，XP同学用photeshop的技术和界面结合，使得界面一体化，更加美观。
+5.下面是细节中的细节，从程序入口写起：
+	（1）.首先要初始化界面然后再连接。这样看起来更友好，不然界面总是不出来也不是个事，这一点体现在程序的入口处的启用上。
+	（2）.登录界面的设置
+		this.setTitle("TalkMachine#204");//名字
+		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);//设置开关
+		this.setSize(355, 320);//大小
+		this.setResizable(false);//大小不可改变
+		this.setLocation(200, 200);//在桌面上的位置
+		this.setLayout(new CardLayout());//布局方式
+	（3）.各个component在绝对布局下的叠放层次非常重要。。
+	（4）.usernameLabel.setFont(new Font("宋体",1,16));//"楷体_GB2312","宋体","楷体","华文行楷"
+	（5）.pictureLabel.setIcon(new ImageIcon(getClass().getResource("./login.png")));
+	（6）.	con=new Connection();
+		con.start();//把Connection做成新线程处理，以免干扰view的初始化
+	（7）.	while (talkSocket == null) {
+			try {
+				talkSocket = new Socket("127.0.0.1", talkPort);
+				//this.sleep(6000);// 每6秒钟连接一次服务器,时间太长了不好,写在这里逻辑上不健全
+				//因为即使连上了，还会有等待时间，
+				//写在下面的catch块里的话，只要一连上这个服务器，便开始初始化客户端
+			} catch (IOException e) {
+				System.out.println("No server，请先启动服务器!");
+				try {
+					this.sleep(6000);// 每6秒钟连接一次服务器,时间太长了不好
+				} catch (InterruptedException e1) {
+					System.out.println("connect thread error");
+				}
+			}
+		}
+	（8）.把循环写在try-catch块中可以在抛出异常的时候跳出循环，这一点自有妙用。
+
+	（9）.	ServerTalkThread talkThread[];
+		ServerRegisterThread registerThread[];
+		int i = 0;//设置登录和对话线程
+		int j = 0;//设置注册线程
+		SendMessageThread messageThread;
+
+		Map map;//用来记录所有上线用户
+
+	（10）.获得当前目录
+		private File file = new File("./src/freeTalk4/server/store/");
+		private String storePath;
+		storePath=file.getAbsolutePath();
