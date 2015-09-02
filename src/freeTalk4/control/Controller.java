@@ -27,8 +27,9 @@ public class Controller {
 	}
 
 	// 下面的俩个run都是让M V C三个对象互相持有。而且都new除了新对象
+	// 在内存中只有一个对象
 	public void initMVC() {
-		model = new Model(this, loginView, talkView);
+		model = new Model(this, loginView, talkView);//这句话初始化的时候，其实loginView和talkView都是空的，后两句才给这两个对象赋值。
 		loginView = new LoginView(this, model);
 		talkView = new TalkView(this, model);
 	}
